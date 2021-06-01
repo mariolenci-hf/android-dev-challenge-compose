@@ -1,17 +1,21 @@
 package com.example.androiddevchallenge.components
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.androiddevchallenge.model.Recipe
-import com.example.androiddevchallenge.model.RecipeUiModel
 import com.example.androiddevchallenge.ui.theme.DarkGray
 import com.example.androiddevchallenge.ui.theme.MyTheme
 import com.example.androiddevchallenge.viewmodel.Intent
@@ -70,23 +74,26 @@ fun BottomView(
     onIntent: (Intent) -> Unit = {}
 ) {
     Column {
-        if(price != null) {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                Text(
-                    text = "Total price",
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colors.onSurface
-                )
-                Text(text = price, color = MaterialTheme.colors.onSurface)
-            }
+        val offset: Dp by animateDpAsState(
+            if (price == null) 50.dp else 0.dp,
+            tween(500)
+        )
+
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .offset(y = offset)
+        ) {
+            Text(
+                text = "Total price",
+                modifier = Modifier.weight(1f),
+                color = MaterialTheme.colors.onSurface
+            )
+            Text(text = price ?: "", color = MaterialTheme.colors.onSurface)
         }
         AddButton(onClick = { onIntent(Intent.AddRecipe) })
     }
-
 }
 
 @Composable
@@ -132,7 +139,7 @@ fun ComponentsPreview2() {
 //                RecipePrice(recipe = recipe)
 //                RecipeName(recipe = recipe)
                 VerticalDivider(modifier = Modifier.padding(16.dp))
-                BottomView("10.0")
+//                BottomView("10.0")
             }
         }
     }
