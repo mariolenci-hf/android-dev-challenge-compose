@@ -27,12 +27,11 @@ import com.example.androiddevchallenge.components.RecipesListScreen
 import com.example.androiddevchallenge.ui.theme.MyTheme
 
 class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MyTheme {
-                RecipesListScreen()
-            }
+            MyApp()
         }
     }
 }
@@ -40,8 +39,10 @@ class MainActivity : AppCompatActivity() {
 // Start building your app here!
 @Composable
 fun MyApp() {
-    Surface(color = MaterialTheme.colors.background) {
-        RecipesListScreen()
+    MyTheme {
+        Surface(color = MaterialTheme.colors.background) {
+//            RecipesListScreen()
+        }
     }
 }
 
@@ -49,6 +50,6 @@ fun MyApp() {
 @Composable
 fun DarkPreview() {
     MyTheme(darkTheme = true) {
-        RecipesListScreen()
+//        RecipesListScreen()
     }
 }

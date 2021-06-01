@@ -17,22 +17,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.androiddevchallenge.model.Recipe
+import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.example.androiddevchallenge.mapper.mapToUiModel
+import com.example.androiddevchallenge.model.RecipeUiModel
 import com.example.androiddevchallenge.model.RecipesDataGenerator
 import com.example.androiddevchallenge.ui.theme.DarkGray
 import com.example.androiddevchallenge.ui.theme.MyTheme
+import com.example.androiddevchallenge.viewmodel.RecipesListViewState
 
 /**
  * Main task screen composable
  */
 @Composable
-fun RecipesListScreen() {
+fun RecipesListScreen(
+    stateLiveData: LiveData<RecipesListViewState>
+) {
+    val state by stateLiveData.observeAsState()
+
     Column {
-        val emptyView = true
-        if (emptyView) {
+        val current = state
+
+        if (current == null || current.recipesList.isEmpty()) {
             EmptyView(Modifier.weight(1f))
         } else {
-            RecipeListView(Modifier.weight(1f))
+            RecipeListView(Modifier.weight(1f), current.recipesList)
         }
 
         BottomView()
@@ -43,12 +54,15 @@ fun RecipesListScreen() {
  * Displays list of recipes
  */
 @Composable
-fun RecipeListView(modifier: Modifier) {
+fun RecipeListView(
+    modifier: Modifier,
+    items: List<RecipeUiModel>
+) {
     LazyColumn(
         modifier = modifier.background(DarkGray)
     ) {
-        items(0) {
-            RecipeCard()
+        items(items = items) { item ->
+            RecipeCard(item)
             Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -78,7 +92,10 @@ fun AddButton() {
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun RecipeCard(onClick: () -> Unit = {}) {
+fun RecipeCard(
+    recipeUiModel: RecipeUiModel,
+    onClick: () -> Unit = {}
+) {
     Card(
         Modifier
             .padding(horizontal = 16.dp)
@@ -90,26 +107,21 @@ fun RecipeCard(onClick: () -> Unit = {}) {
                 onClick = {}
             )
     ) {
-        val recipe = Recipe(
-            name = RecipesDataGenerator.names.random(),
-            price = RecipesDataGenerator.randomPrice,
-            color = RecipesDataGenerator.randomColor
-        )
         Row(
             Modifier
                 .padding(16.dp)
                 .animateContentSize()
         ) {
             val centerVerticalAlignment = Modifier.align(Alignment.CenterVertically)
-            ColorView(color = recipe.color, centerVerticalAlignment)
+            ColorView(color = recipeUiModel.type.color, centerVerticalAlignment)
             RecipeName(
-                recipe,
+                recipeUiModel.name,
                 centerVerticalAlignment
                     .weight(1f)
                     .padding(start = 8.dp)
             )
             VerticalDivider(centerVerticalAlignment)
-            RecipePrice(recipe, centerVerticalAlignment)
+            RecipePrice(recipeUiModel.price, centerVerticalAlignment)
         }
     }
 }
@@ -118,22 +130,19 @@ fun RecipeCard(onClick: () -> Unit = {}) {
  * Card which shows a request to remove a particular recipe from the list
  */
 @Composable
-fun ConfirmDeletionCard(onClick: () -> Unit = {}) {
-    val recipeToDelete = Recipe(
-        name = RecipesDataGenerator.names.random(),
-        price = RecipesDataGenerator.randomPrice,
-        color = RecipesDataGenerator.randomColor
-    )
+fun ConfirmDeletionCard(
+    recipeUiModel: RecipeUiModel,
+    onClick: () -> Unit = {}
+) {
     Card(
         Modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(horizontal = 16.dp)
     ) {
-
         Column(
             Modifier
-                .background(color = recipeToDelete.color)
+                .background(color = recipeUiModel.type.color)
                 .padding(16.dp),
         ) {
             Text(
@@ -213,10 +222,11 @@ fun BonusComponentsReview() {
 fun ComponentsPreview() {
     MyTheme {
         Surface {
+            val recipeUiModel = RecipesDataGenerator.generateRecipes(1).first().mapToUiModel()
             Column {
-                RecipeCard()
+                RecipeCard(recipeUiModel)
                 Spacer(modifier = Modifier.size(8.dp))
-                ConfirmDeletionCard()
+                ConfirmDeletionCard(recipeUiModel)
             }
         }
     }
@@ -225,7 +235,8 @@ fun ComponentsPreview() {
 @Preview
 @Composable
 fun ScreenPreview() {
+    val previewData = MutableLiveData(RecipesListViewState(RecipesDataGenerator.generateRecipes(5).map { it.mapToUiModel() }))
     MyTheme {
-        RecipesListScreen()
+        RecipesListScreen(previewData)
     }
 }

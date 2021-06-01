@@ -11,6 +11,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.androiddevchallenge.model.Recipe
+import com.example.androiddevchallenge.model.RecipeUiModel
 import com.example.androiddevchallenge.ui.theme.DarkGray
 import com.example.androiddevchallenge.ui.theme.MyTheme
 
@@ -36,22 +37,22 @@ fun EmptyView(modifier: Modifier) {
 
 @Composable
 fun RecipeName(
-    recipe: Recipe,
+    name: String,
     modifier: Modifier = Modifier
 ) {
     Text(
-        text = recipe.name,
+        text = name,
         modifier.padding(start = 8.dp, end = 8.dp)
     )
 }
 
 @Composable
 fun RecipePrice(
-    recipe: Recipe,
+    price: String,
     modifier: Modifier = Modifier
 ) {
     Text(
-        text = String.format("$ %.2f", recipe.price / 100),
+        text = price,
         modifier = modifier
             .padding(start = 8.dp)
             .width(52.dp),
@@ -122,8 +123,8 @@ fun ComponentsPreview2() {
         Surface {
             Column {
                 EmptyView(modifier = Modifier)
-                RecipePrice(recipe = recipe)
-                RecipeName(recipe = recipe)
+//                RecipePrice(recipe = recipe)
+//                RecipeName(recipe = recipe)
                 VerticalDivider(modifier = Modifier.padding(16.dp))
                 BottomView()
             }

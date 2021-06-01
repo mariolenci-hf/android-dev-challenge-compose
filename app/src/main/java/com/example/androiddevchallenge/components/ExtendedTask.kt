@@ -54,9 +54,9 @@ fun ExpandedCard(onClick: () -> Unit = {}) {
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
                 val centerVerticalAlignment = Modifier.align(Alignment.CenterVertically)
-                RecipeName(recipe, centerVerticalAlignment.weight(1f))
+//                RecipeName(recipe, centerVerticalAlignment.weight(1f))
                 PlusMinusButton(ButtonStyle.MINUS)
-                RecipePrice(recipe, centerVerticalAlignment)
+//                RecipePrice(recipe, centerVerticalAlignment)
                 PlusMinusButton(ButtonStyle.PLUS)
             }
         }
