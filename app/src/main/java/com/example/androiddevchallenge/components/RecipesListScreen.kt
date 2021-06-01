@@ -1,5 +1,6 @@
 package com.example.androiddevchallenge.components
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.DismissValue.DismissedToEnd
+import androidx.compose.material.DismissValue.DismissedToStart
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.LiveData
@@ -78,22 +80,27 @@ fun RecipeListView(
         modifier = modifier.background(DarkGray)
     ) {
         items(items = items) { item ->
-            if(!item.showConfirmation) {
-                val dismissState = rememberDismissState(
-                    confirmStateChange = {
-                        if (it == DismissedToEnd) onIntent(Intent.ShowConfirmation(item.id))
-                        it != DismissedToEnd
-                    }
-                )
-
-                SwipeToDismiss(
-                    state = dismissState,
-                    background = { ConfirmDeletionCard(item) },
-                    modifier = Modifier.wrapContentHeight(),
-                    dismissContent = { RecipeCard(item, onIntent) }
-                )
-            } else {
+            Box {
                 ConfirmDeletionCard(item, onIntent)
+                Crossfade(targetState = item.showConfirmation) { showConfirmation: Boolean ->
+                    if (!showConfirmation) {
+                        val dismissState = rememberDismissState(
+                            confirmStateChange = {
+                                if (it == DismissedToEnd || it == DismissedToStart) onIntent(
+                                    Intent.ShowConfirmation(item.id)
+                                )
+                                it != DismissedToEnd || it != DismissedToStart
+                            }
+                        )
+
+                        SwipeToDismiss(
+                            state = dismissState,
+                            background = {},
+                            modifier = Modifier.wrapContentHeight(),
+                            dismissContent = { RecipeCard(item, onIntent) }
+                        )
+                    }
+                }
             }
 
             Spacer(
@@ -168,19 +175,18 @@ fun ConfirmDeletionCard(
     Card(
         Modifier
             .fillMaxWidth()
-            .wrapContentHeight()
+            .fillMaxHeight()
             .padding(horizontal = 16.dp)
     ) {
         Column(
             Modifier
                 .background(color = recipeUiModel.type.color)
-                .padding(16.dp),
+                .padding(8.dp),
         ) {
             Text(
                 text = "Remove from the list?",
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(5.dp)
             )
-            HorizontalDivider()
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -286,7 +292,10 @@ fun ComponentsPreview() {
 @Preview
 @Composable
 fun ScreenPreview() {
-    val previewData = MutableLiveData(RecipesListViewState(RecipesDataGenerator.generateRecipes(5).map { it.mapToUiModel() }))
+    val previewData = MutableLiveData(
+        RecipesListViewState(
+            RecipesDataGenerator.generateRecipes(5).map { it.mapToUiModel() })
+    )
     MyTheme {
         RecipesListScreen(previewData)
     }
