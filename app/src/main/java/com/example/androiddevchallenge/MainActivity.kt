@@ -20,6 +20,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -35,6 +36,7 @@ import com.example.androiddevchallenge.viewmodel.RecipesListViewModel
 import com.example.androiddevchallenge.viewmodel.RecipesListViewState
 
 @ExperimentalFoundationApi
+@ExperimentalMaterialApi
 class MainActivity : AppCompatActivity() {
 
     val model: RecipesListViewModel by viewModels()
@@ -48,6 +50,7 @@ class MainActivity : AppCompatActivity() {
 
 // Start building your app here!
 @ExperimentalFoundationApi
+@ExperimentalMaterialApi
 @Composable
 fun MyApp(model: RecipesListViewModel) {
     MyTheme {
@@ -58,6 +61,7 @@ fun MyApp(model: RecipesListViewModel) {
 }
 
 @ExperimentalFoundationApi
+@ExperimentalMaterialApi
 @Preview("Dark Theme", widthDp = 360, heightDp = 640)
 @Composable
 fun DarkPreview() {

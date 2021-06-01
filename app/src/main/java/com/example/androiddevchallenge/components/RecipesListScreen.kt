@@ -10,10 +10,6 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.*
+import androidx.compose.material.DismissValue.DismissedToEnd
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.LiveData
@@ -39,6 +37,7 @@ import com.example.androiddevchallenge.viewmodel.RecipesListViewState
  * Main task screen composable
  */
 @ExperimentalFoundationApi
+@ExperimentalMaterialApi
 @Composable
 fun RecipesListScreen(
     stateLiveData: LiveData<RecipesListViewState>,
@@ -68,6 +67,7 @@ fun RecipesListScreen(
 /**
  * Displays list of recipes
  */
+@ExperimentalMaterialApi
 @Composable
 fun RecipeListView(
     modifier: Modifier,
@@ -78,10 +78,24 @@ fun RecipeListView(
         modifier = modifier.background(DarkGray)
     ) {
         items(items = items) { item ->
-            when {
-                item.showConfirmation -> ConfirmDeletionCard(item, onIntent)
-                else -> RecipeCard(item, onIntent)
+            if(!item.showConfirmation) {
+                val dismissState = rememberDismissState(
+                    confirmStateChange = {
+                        if (it == DismissedToEnd) onIntent(Intent.ShowConfirmation(item.id))
+                        it != DismissedToEnd
+                    }
+                )
+
+                SwipeToDismiss(
+                    state = dismissState,
+                    background = { ConfirmDeletionCard(item) },
+                    modifier = Modifier.wrapContentHeight(),
+                    dismissContent = { RecipeCard(item, onIntent) }
+                )
+            } else {
+                ConfirmDeletionCard(item, onIntent)
             }
+
             Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -268,6 +282,7 @@ fun ComponentsPreview() {
 }
 
 @ExperimentalFoundationApi
+@ExperimentalMaterialApi
 @Preview
 @Composable
 fun ScreenPreview() {
