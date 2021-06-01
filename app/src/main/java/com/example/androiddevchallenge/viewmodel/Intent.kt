@@ -4,6 +4,7 @@ import com.example.androiddevchallenge.model.RecipeType
 
 sealed class Intent {
     object AddRecipe : Intent()
+    object DeleteAll : Intent()
     data class ShowConfirmation(val id: Int) : Intent()
     data class DismissConfirmation(val id: Int) : Intent()
     data class Delete(val id: Int) : Intent()

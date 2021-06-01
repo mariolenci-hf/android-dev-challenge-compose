@@ -32,7 +32,14 @@ class RecipesListViewModel : ViewModel() {
             is Intent.Delete -> delete(intent.id)
             is Intent.DismissConfirmation -> dismissConfirmation(intent.id)
             is Intent.SelectFilter -> selectFilter(intent.recipeType)
+            is Intent.DeleteAll -> deleteAll()
         }
+    }
+
+    private fun deleteAll() {
+        recipesList.clear()
+        confirmation.clear()
+        updateState()
     }
 
     private fun selectFilter(recipeType: RecipeType) {

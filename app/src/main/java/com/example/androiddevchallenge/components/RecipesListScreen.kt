@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
+import androidx.compose.material.ButtonDefaults.buttonColors
 import androidx.compose.material.DismissValue.DismissedToEnd
 import androidx.compose.material.DismissValue.DismissedToStart
 import androidx.compose.runtime.livedata.observeAsState
@@ -32,6 +33,7 @@ import com.example.androiddevchallenge.model.RecipeUiModel
 import com.example.androiddevchallenge.model.RecipesDataGenerator
 import com.example.androiddevchallenge.ui.theme.DarkGray
 import com.example.androiddevchallenge.ui.theme.MyTheme
+import com.example.androiddevchallenge.ui.theme.Red300
 import com.example.androiddevchallenge.viewmodel.Intent
 import com.example.androiddevchallenge.viewmodel.RecipesListViewState
 
@@ -114,6 +116,9 @@ fun RecipeListView(
                     .height(8.dp)
             )
         }
+        item {
+            RemoveAllButton(onClick = { onIntent(Intent.DeleteAll) })
+        }
     }
 }
 
@@ -129,6 +134,22 @@ fun AddButton(onClick: () -> Unit) {
             .fillMaxWidth(),
     ) {
         Text(text = "Add recipe")
+    }
+}
+
+/**
+ * Draws an "Remove All" button
+ */
+@Composable
+fun RemoveAllButton(onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxWidth(),
+        colors = buttonColors(backgroundColor = Red300)
+    ) {
+        Text(text = "Remove All")
     }
 }
 
@@ -254,7 +275,7 @@ fun ColorView3(
     val shape = RoundedCornerShape(12.dp)
 
     val borderAnimation: Dp by animateDpAsState(
-        if (filter.isSelected) 3.dp else 0.dp,
+        if (filter.isSelected) 4.dp else 0.dp,
         tween(500)
     )
 

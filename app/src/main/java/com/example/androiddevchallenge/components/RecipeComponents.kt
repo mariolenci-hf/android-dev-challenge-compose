@@ -10,6 +10,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
@@ -75,7 +76,8 @@ fun BottomView(
     onIntent: (Intent) -> Unit = {}
 ) {
     Column(
-        modifier = Modifier.background(DarkGray)
+        modifier = Modifier
+            .background(DarkGray)
     ) {
         val offset: Dp by animateDpAsState(
             if (price == null) 50.dp else 0.dp,
@@ -85,20 +87,24 @@ fun BottomView(
         Box(
             Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colors.background)
                 .offset(y = offset)
         ) {
-            Row(
+            Box(
                 Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .background(MaterialTheme.colors.background)
             ) {
-                Text(
-                    text = "Total price",
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colors.onSurface
-                )
-                Text(text = price ?: "", color = MaterialTheme.colors.onSurface)
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Text(
+                        text = "Total price",
+                        modifier = Modifier.weight(1f),
+                        color = MaterialTheme.colors.onSurface
+                    )
+                    Text(text = price ?: "", color = MaterialTheme.colors.onSurface)
+                }
             }
         }
 
