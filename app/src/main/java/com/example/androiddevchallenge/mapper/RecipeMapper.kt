@@ -3,8 +3,9 @@ package com.example.androiddevchallenge.mapper
 import com.example.androiddevchallenge.model.Recipe
 import com.example.androiddevchallenge.model.RecipeType
 import com.example.androiddevchallenge.model.RecipeUiModel
+import com.example.androiddevchallenge.viewmodel.Intent
 
-fun Recipe.mapToUiModel() =
+fun Recipe.mapToUiModel(showConfirmation: Boolean = false) =
     RecipeUiModel(
         id,
         name,
@@ -15,5 +16,6 @@ fun Recipe.mapToUiModel() =
             RecipeType.RED.color -> RecipeType.RED
             RecipeType.YELLOW.color -> RecipeType.YELLOW
             else -> RecipeType.PURPLE
-        }
+        },
+        showConfirmation
     )

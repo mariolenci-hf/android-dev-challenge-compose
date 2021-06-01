@@ -14,6 +14,7 @@ import com.example.androiddevchallenge.model.Recipe
 import com.example.androiddevchallenge.model.RecipeUiModel
 import com.example.androiddevchallenge.ui.theme.DarkGray
 import com.example.androiddevchallenge.ui.theme.MyTheme
+import com.example.androiddevchallenge.viewmodel.Intent
 
 /**
  * This file is supposed to remain untouched during the challenge. (Unless I overlooked smth)
@@ -64,21 +65,26 @@ fun RecipePrice(
  * Static box with Price + Button
  */
 @Composable
-fun BottomView() {
+fun BottomView(
+    price: String?,
+    onIntent: (Intent) -> Unit = {}
+) {
     Column {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            Text(
-                text = "Total price",
-                modifier = Modifier.weight(1f),
-                color = MaterialTheme.colors.onSurface
-            )
-            Text(text = "$ X", color = MaterialTheme.colors.onSurface)
+        if(price != null) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = "Total price",
+                    modifier = Modifier.weight(1f),
+                    color = MaterialTheme.colors.onSurface
+                )
+                Text(text = price, color = MaterialTheme.colors.onSurface)
+            }
         }
-        AddButton()
+        AddButton(onClick = { onIntent(Intent.AddRecipe) })
     }
 
 }
@@ -126,7 +132,7 @@ fun ComponentsPreview2() {
 //                RecipePrice(recipe = recipe)
 //                RecipeName(recipe = recipe)
                 VerticalDivider(modifier = Modifier.padding(16.dp))
-                BottomView()
+                BottomView("10.0")
             }
         }
     }

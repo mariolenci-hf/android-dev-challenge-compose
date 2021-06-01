@@ -17,31 +17,39 @@ package com.example.androiddevchallenge
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModelProvider
 import com.example.androiddevchallenge.components.RecipesListScreen
+import com.example.androiddevchallenge.mapper.mapToUiModel
+import com.example.androiddevchallenge.model.RecipesDataGenerator
 import com.example.androiddevchallenge.ui.theme.MyTheme
+import com.example.androiddevchallenge.viewmodel.RecipesListViewModel
+import com.example.androiddevchallenge.viewmodel.RecipesListViewState
 
 class MainActivity : AppCompatActivity() {
 
+    val model: RecipesListViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            MyApp()
-        }
+
+        setContent { MyApp(model) }
     }
 }
 
 // Start building your app here!
 @Composable
-fun MyApp() {
+fun MyApp(model: RecipesListViewModel) {
     MyTheme {
         Surface(color = MaterialTheme.colors.background) {
-//            RecipesListScreen()
+            RecipesListScreen(model.state, model::onIntent)
         }
     }
 }
@@ -49,7 +57,8 @@ fun MyApp() {
 @Preview("Dark Theme", widthDp = 360, heightDp = 640)
 @Composable
 fun DarkPreview() {
+    val previewData = MutableLiveData(RecipesListViewState(RecipesDataGenerator.generateRecipes(5).map { it.mapToUiModel() }))
     MyTheme(darkTheme = true) {
-//        RecipesListScreen()
+        RecipesListScreen(previewData)
     }
 }

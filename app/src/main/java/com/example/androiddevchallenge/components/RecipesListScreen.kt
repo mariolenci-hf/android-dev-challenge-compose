@@ -26,6 +26,7 @@ import com.example.androiddevchallenge.model.RecipeUiModel
 import com.example.androiddevchallenge.model.RecipesDataGenerator
 import com.example.androiddevchallenge.ui.theme.DarkGray
 import com.example.androiddevchallenge.ui.theme.MyTheme
+import com.example.androiddevchallenge.viewmodel.Intent
 import com.example.androiddevchallenge.viewmodel.RecipesListViewState
 
 /**
@@ -33,20 +34,24 @@ import com.example.androiddevchallenge.viewmodel.RecipesListViewState
  */
 @Composable
 fun RecipesListScreen(
-    stateLiveData: LiveData<RecipesListViewState>
+    stateLiveData: LiveData<RecipesListViewState>,
+    onIntent: (Intent) -> Unit = {}
 ) {
     val state by stateLiveData.observeAsState()
 
     Column {
         val current = state
-
         if (current == null || current.recipesList.isEmpty()) {
             EmptyView(Modifier.weight(1f))
         } else {
-            RecipeListView(Modifier.weight(1f), current.recipesList)
+            RecipeListView(
+                Modifier.weight(1f),
+                current.recipesList,
+                onIntent
+            )
         }
 
-        BottomView()
+        BottomView(state?.price, onIntent)
     }
 }
 
@@ -56,13 +61,17 @@ fun RecipesListScreen(
 @Composable
 fun RecipeListView(
     modifier: Modifier,
-    items: List<RecipeUiModel>
+    items: List<RecipeUiModel>,
+    onIntent: (Intent) -> Unit = {}
 ) {
     LazyColumn(
         modifier = modifier.background(DarkGray)
     ) {
         items(items = items) { item ->
-            RecipeCard(item)
+            when {
+                item.showConfirmation -> ConfirmDeletionCard(item, onIntent)
+                else -> RecipeCard(item, onIntent)
+            }
             Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -76,9 +85,9 @@ fun RecipeListView(
  * Draws an "Add" button
  */
 @Composable
-fun AddButton() {
+fun AddButton(onClick: () -> Unit) {
     Button(
-        onClick = { /* TODO add a recipe */ },
+        onClick = onClick,
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .fillMaxWidth(),
@@ -94,16 +103,14 @@ fun AddButton() {
 @Composable
 fun RecipeCard(
     recipeUiModel: RecipeUiModel,
-    onClick: () -> Unit = {}
+    onIntent: (Intent) -> Unit = {}
 ) {
     Card(
         Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
             .combinedClickable(
-                onLongClick = {
-                    /* TODO ask to remove the item using ConfirmDeletionCard */
-                },
+                onLongClick = { onIntent(Intent.ShowConfirmation(recipeUiModel.id)) },
                 onClick = {}
             )
     ) {
@@ -132,7 +139,7 @@ fun RecipeCard(
 @Composable
 fun ConfirmDeletionCard(
     recipeUiModel: RecipeUiModel,
-    onClick: () -> Unit = {}
+    onIntent: (Intent) -> Unit = {}
 ) {
     Card(
         Modifier
@@ -156,10 +163,10 @@ fun ConfirmDeletionCard(
             ) {
                 val weightModifier = Modifier.weight(1f)
                 ConfirmationButton(text = "Yes", modifier = weightModifier) {
-                    /* TODO remove this item from the list */
+                    onIntent(Intent.Delete(recipeUiModel.id))
                 }
                 ConfirmationButton(text = "No", modifier = weightModifier) {
-                    /* TODO return to RecipeCard */
+                    onIntent(Intent.DismissConfirmation(recipeUiModel.id))
                 }
             }
         }
