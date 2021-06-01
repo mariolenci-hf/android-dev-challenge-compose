@@ -5,7 +5,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.androiddevchallenge.mapper.mapToUiModel
+import com.example.androiddevchallenge.model.Filter
 import com.example.androiddevchallenge.model.Recipe
+import com.example.androiddevchallenge.model.RecipeType
 import com.example.androiddevchallenge.model.RecipesDataGenerator
 
 class RecipesListViewModel : ViewModel() {
@@ -16,6 +18,11 @@ class RecipesListViewModel : ViewModel() {
     // getting data to display on the UI from the data source
     private val recipesList = mutableListOf<Recipe>()
     private val confirmation = mutableListOf<Int>()
+    private val selectedTypes = mutableListOf<RecipeType>()
+
+    init {
+        updateState()
+    }
 
     fun onIntent(intent: Intent) {
         Log.i("RecipesListViewModel", "intent: $intent")
@@ -24,7 +31,18 @@ class RecipesListViewModel : ViewModel() {
             is Intent.ShowConfirmation -> showConfirmation(intent.id)
             is Intent.Delete -> delete(intent.id)
             is Intent.DismissConfirmation -> dismissConfirmation(intent.id)
+            is Intent.SelectFilter -> selectFilter(intent.recipeType)
         }
+    }
+
+    private fun selectFilter(recipeType: RecipeType) {
+        if (recipeType in selectedTypes) {
+            selectedTypes.remove(recipeType)
+        } else {
+            selectedTypes.add(recipeType)
+        }
+
+        updateState()
     }
 
     private fun dismissConfirmation(recipeId: Int) {
@@ -51,9 +69,13 @@ class RecipesListViewModel : ViewModel() {
     }
 
     private fun updateState() {
-        _states.postValue(RecipesListViewState(
-            recipesList.map { it.mapToUiModel(showConfirmation = it.id in confirmation) },
-            recipesList.map { it.price }.sum().let { String.format("$ %.2f", it / 100) }
-        ))
+        val filteredList =
+            recipesList.filter { recipe -> recipe.color in selectedTypes.map { it.color } || selectedTypes.isEmpty() }
+
+        _states.value = RecipesListViewState(
+            filteredList.map { it.mapToUiModel(showConfirmation = it.id in confirmation) },
+            filteredList.map { it.price }.sum().takeIf { it > 0 }?.let { String.format("$ %.2f", it / 100) },
+            RecipeType.values().map { Filter(it, it in selectedTypes) }
+        )
     }
 }

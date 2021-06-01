@@ -1,8 +1,11 @@
 package com.example.androiddevchallenge.components
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,9 +22,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.androiddevchallenge.mapper.mapToUiModel
+import com.example.androiddevchallenge.model.Filter
+import com.example.androiddevchallenge.model.RecipeType
 import com.example.androiddevchallenge.model.RecipeUiModel
 import com.example.androiddevchallenge.model.RecipesDataGenerator
 import com.example.androiddevchallenge.ui.theme.DarkGray
@@ -32,6 +38,7 @@ import com.example.androiddevchallenge.viewmodel.RecipesListViewState
 /**
  * Main task screen composable
  */
+@ExperimentalFoundationApi
 @Composable
 fun RecipesListScreen(
     stateLiveData: LiveData<RecipesListViewState>,
@@ -40,8 +47,11 @@ fun RecipesListScreen(
     val state by stateLiveData.observeAsState()
 
     Column {
-        val current = state
-        if (current == null || current.recipesList.isEmpty()) {
+        val current = state ?: return
+
+        ColorFilter(filters = current.filterList, onIntent)
+
+        if (current.recipesList.isEmpty()) {
             EmptyView(Modifier.weight(1f))
         } else {
             RecipeListView(
@@ -191,36 +201,54 @@ fun ColorView(color: Color, modifier: Modifier) {
  *
  * Use this view for Bonus task
  */
+@ExperimentalFoundationApi
 @Composable
-fun ColorFilter() {
+fun ColorFilter(
+    filters: List<Filter>,
+    onIntent: (Intent) -> Unit = {}
+) {
     Row(
         Modifier
             .background(DarkGray)
             .padding(vertical = 8.dp)
     ) {
         Spacer(modifier = Modifier.weight(1f))
-        RecipesDataGenerator.colors.forEach { color ->
-            ColorView3(color = color)
+        filters.forEach { filter ->
+            ColorView3(filter, onIntent)
             Spacer(modifier = Modifier.weight(1f))
         }
     }
 }
 
 @Composable
-fun ColorView3(color: Color, modifier: Modifier = Modifier) {
+@ExperimentalFoundationApi
+fun ColorView3(
+    filter: Filter,
+    onClick: (Intent) -> Unit
+) {
+    val shape = RoundedCornerShape(12.dp)
+
+    val borderAnimation: Dp by animateDpAsState(
+        if (filter.isSelected) 3.dp else 0.dp,
+        tween(500)
+    )
+
     Spacer(
-        modifier = modifier
+        modifier = Modifier
             .width(64.dp)
             .height(24.dp)
-            .background(color, shape = RoundedCornerShape(12.dp))
+            .background(filter.recipeType.color, shape = shape)
+            .border(borderAnimation, Color.White, shape)
+            .combinedClickable { onClick(Intent.SelectFilter(filter.recipeType)) }
     )
 }
 
+@ExperimentalFoundationApi
 @Preview
 @Composable
 fun BonusComponentsReview() {
     MyTheme {
-        ColorFilter()
+        ColorFilter(RecipeType.values().map { Filter(it, true) })
     }
 }
 
@@ -239,6 +267,7 @@ fun ComponentsPreview() {
     }
 }
 
+@ExperimentalFoundationApi
 @Preview
 @Composable
 fun ScreenPreview() {
