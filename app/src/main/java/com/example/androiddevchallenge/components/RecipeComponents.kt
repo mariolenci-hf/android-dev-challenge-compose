@@ -10,6 +10,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -73,26 +74,39 @@ fun BottomView(
     price: String?,
     onIntent: (Intent) -> Unit = {}
 ) {
-    Column {
+    Column(
+        modifier = Modifier.background(DarkGray)
+    ) {
         val offset: Dp by animateDpAsState(
             if (price == null) 50.dp else 0.dp,
             tween(500)
         )
 
-        Row(
+        Box(
             Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .background(MaterialTheme.colors.background)
                 .offset(y = offset)
         ) {
-            Text(
-                text = "Total price",
-                modifier = Modifier.weight(1f),
-                color = MaterialTheme.colors.onSurface
-            )
-            Text(text = price ?: "", color = MaterialTheme.colors.onSurface)
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = "Total price",
+                    modifier = Modifier.weight(1f),
+                    color = MaterialTheme.colors.onSurface
+                )
+                Text(text = price ?: "", color = MaterialTheme.colors.onSurface)
+            }
         }
-        AddButton(onClick = { onIntent(Intent.AddRecipe) })
+
+        Box(
+            Modifier.background(MaterialTheme.colors.background)
+        ) {
+            AddButton(onClick = { onIntent(Intent.AddRecipe) })
+        }
     }
 }
 

@@ -47,19 +47,24 @@ fun RecipesListScreen(
 ) {
     val state by stateLiveData.observeAsState()
 
-    Column {
+    Column() {
         val current = state ?: return
 
         ColorFilter(filters = current.filterList, onIntent)
 
-        if (current.recipesList.isEmpty()) {
-            EmptyView(Modifier.weight(1f))
-        } else {
-            RecipeListView(
-                Modifier.weight(1f),
-                current.recipesList,
-                onIntent
-            )
+        Crossfade(
+            targetState = current.recipesList.isEmpty(),
+            modifier = Modifier.weight(1f)
+        ) { empty ->
+            if (empty) {
+                EmptyView(Modifier.fillMaxHeight())
+            } else {
+                RecipeListView(
+                    Modifier.fillMaxHeight(),
+                    current.recipesList,
+                    onIntent
+                )
+            }
         }
 
         BottomView(state?.price, onIntent)
